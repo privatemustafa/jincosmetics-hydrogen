@@ -246,23 +246,27 @@ function createSphere(canvas, options = {}) {
   let scatterEnergy = 0
 
   function resize() {
-    width = canvas.clientWidth || window.innerWidth
-    height = canvas.clientHeight || window.innerHeight
+    width = pointerEl.clientWidth || window.innerWidth
+    height = pointerEl.clientHeight || window.innerHeight
     renderer.setSize(width, height, false)
     camera.aspect = width / height
     camera.updateProjectionMatrix()
   }
 
   const ro = new ResizeObserver(resize)
-  ro.observe(canvas)
+  ro.observe(pointerEl)
   resize()
 
-  function updatePointer(e) {
+  function updatePointerFromClient(clientX, clientY) {
     const rect = pointerEl.getBoundingClientRect()
     if (!rect.width || !rect.height) return
-    pointer.x = clamp((e.clientX - rect.left) / rect.width, 0, 1)
-    pointer.y = clamp(1 - (e.clientY - rect.top) / rect.height, 0, 1)
+    pointer.x = clamp((clientX - rect.left) / rect.width, 0, 1)
+    pointer.y = clamp(1 - (clientY - rect.top) / rect.height, 0, 1)
     pointer.targetStrength = 1
+  }
+
+  function updatePointer(e) {
+    updatePointerFromClient(e.clientX, e.clientY)
   }
 
   function onPointerMove(e) {
@@ -297,11 +301,31 @@ function createSphere(canvas, options = {}) {
     pointer.targetStrength = 0
   }
 
+  function onTouchStart(e) {
+    if (!e.touches[0]) return
+    e.preventDefault()
+    updatePointerFromClient(e.touches[0].clientX, e.touches[0].clientY)
+  }
+
+  function onTouchMove(e) {
+    if (!e.touches[0]) return
+    e.preventDefault()
+    updatePointerFromClient(e.touches[0].clientX, e.touches[0].clientY)
+  }
+
+  function onTouchEnd() {
+    pointer.targetStrength = 0
+  }
+
   pointerEl.addEventListener('pointermove', onPointerMove)
   pointerEl.addEventListener('pointerdown', onPointerDown)
   pointerEl.addEventListener('pointerleave', onPointerLeave)
   pointerEl.addEventListener('pointerup', onPointerUp)
   pointerEl.addEventListener('pointercancel', onPointerUp)
+  pointerEl.addEventListener('touchstart', onTouchStart, { passive: false })
+  pointerEl.addEventListener('touchmove', onTouchMove, { passive: false })
+  pointerEl.addEventListener('touchend', onTouchEnd)
+  pointerEl.addEventListener('touchcancel', onTouchEnd)
 
   function updateScene() {
     const delta = clock.getDelta()
@@ -432,6 +456,10 @@ function createSphere(canvas, options = {}) {
       pointerEl.removeEventListener('pointerleave', onPointerLeave)
       pointerEl.removeEventListener('pointerup', onPointerUp)
       pointerEl.removeEventListener('pointercancel', onPointerUp)
+      pointerEl.removeEventListener('touchstart', onTouchStart)
+      pointerEl.removeEventListener('touchmove', onTouchMove)
+      pointerEl.removeEventListener('touchend', onTouchEnd)
+      pointerEl.removeEventListener('touchcancel', onTouchEnd)
       ro.disconnect()
       marching.geometry.dispose()
       material.dispose()

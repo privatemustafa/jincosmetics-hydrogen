@@ -1,28 +1,34 @@
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useRef} from 'react';
 
-export function IntroShell({enabled}: {enabled: boolean}) {
-  const [done, setDone] = useState(false);
+type Props = {
+  onComplete?: () => void;
+};
+
+export function IntroShell({onComplete}: Props) {
   const started = useRef(false);
+  const completed = useRef(false);
 
   useEffect(() => {
-    if (!enabled || done) return;
+    const scrollY = window.scrollY;
+    document.documentElement.classList.add('intro-active');
 
-    document.documentElement.classList.add('intro-locked');
-
-    const blockScroll = (event: TouchEvent) => {
+    const blockScroll = (event: Event) => {
       event.preventDefault();
     };
 
     document.addEventListener('touchmove', blockScroll, {passive: false});
+    document.addEventListener('wheel', blockScroll, {passive: false});
 
     return () => {
-      document.documentElement.classList.remove('intro-locked');
+      document.documentElement.classList.remove('intro-active');
       document.removeEventListener('touchmove', blockScroll);
+      document.removeEventListener('wheel', blockScroll);
+      window.scrollTo(0, scrollY);
     };
-  }, [enabled, done]);
+  }, []);
 
   useEffect(() => {
-    if (!enabled || started.current || done) return;
+    if (started.current) return;
     started.current = true;
 
     const intro = document.getElementById('intro');
@@ -32,6 +38,14 @@ export function IntroShell({enabled}: {enabled: boolean}) {
     let stop = () => {};
     let fallback = 0;
 
+    const finish = () => {
+      if (completed.current) return;
+      completed.current = true;
+      intro.classList.add('is-hidden');
+      document.documentElement.classList.remove('intro-active');
+      onComplete?.();
+    };
+
     import('~/lib/intro-sphere.client.js').then(({initIntroSphere}) => {
       stop = initIntroSphere({
         intro,
@@ -40,37 +54,22 @@ export function IntroShell({enabled}: {enabled: boolean}) {
         shadow: document.getElementById('introShadow'),
         counter: document.getElementById('introCounter'),
         logoStage: document.getElementById('introLogoStage'),
-        onComplete: () => {
-          revealHero();
-          setDone(true);
-        },
+        onComplete: finish,
       });
 
       fallback = window.setTimeout(() => {
         if (!intro.classList.contains('is-hidden')) {
-          intro.classList.add('is-hidden');
           stop();
-          revealHero();
-          setDone(true);
+          finish();
         }
       }, 12000);
     });
-
-    function revealHero() {
-      document.documentElement.classList.remove('intro-locked');
-      document.querySelector('.hero__img')?.classList.add('is-visible');
-      document.querySelector('.hero__tagline')?.classList.add('is-visible');
-      document.documentElement.classList.add('lenis');
-      window.dispatchEvent(new Event('resize'));
-    }
 
     return () => {
       window.clearTimeout(fallback);
       stop();
     };
-  }, [enabled, done]);
-
-  if (done) return null;
+  }, [onComplete]);
 
   return (
     <div className="intro" id="intro" aria-hidden="true">

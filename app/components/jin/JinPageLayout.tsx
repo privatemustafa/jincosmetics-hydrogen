@@ -18,6 +18,7 @@ export function JinPageLayout({children}: {children: React.ReactNode}) {
   const isLegal =
     /\/(about|shipping-returns|privacy-policy)\/?$/i.test(path);
   const [ready, setReady] = useState(false);
+  const [introComplete, setIntroComplete] = useState(!isHome);
   const [menuOpen, setMenuOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const rootData = useRouteLoaderData<RootLoader>('root');
@@ -56,10 +57,28 @@ export function JinPageLayout({children}: {children: React.ReactNode}) {
     return () => document.removeEventListener('keydown', onKey);
   }, []);
 
+  useEffect(() => {
+    if (!isHome) setIntroComplete(true);
+  }, [isHome]);
+
+  useEffect(() => {
+    if (!introComplete || !isHome) return;
+    document.querySelector('.hero__img')?.classList.add('is-visible');
+    document.querySelector('.hero__tagline')?.classList.add('is-visible');
+    document.documentElement.classList.add('lenis');
+    window.dispatchEvent(new Event('resize'));
+  }, [introComplete, isHome]);
+
+  const showIntro = ready && isHome && !introComplete;
+
   return (
     <>
       <PreviewGate onUnlock={() => setReady(true)} />
-      {ready && isHome && <IntroShell enabled />}
+      {showIntro ? (
+        <IntroShell onComplete={() => setIntroComplete(true)} />
+      ) : null}
+      {introComplete ? (
+        <>
       <header className="header" id="header">
         <div className="header__left">
           <button
@@ -185,6 +204,8 @@ export function JinPageLayout({children}: {children: React.ReactNode}) {
       <main>{children}</main>
       <JinFooter />
       <JinClientEffects />
+        </>
+      ) : null}
     </>
   );
 }
