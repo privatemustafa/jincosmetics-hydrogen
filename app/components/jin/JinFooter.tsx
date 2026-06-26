@@ -33,10 +33,10 @@ export function JinFooter() {
           <div className="footer__col">
             <p className="figuration">Info</p>
             <ul>
-              <li><Link to="/#about">About</Link></li>
-              <li><a href="#">Shipping &amp; Returns</a></li>
-              <li><a href="#">Contact</a></li>
-              <li><a href="#">Privacy Policy</a></li>
+              <li><Link to="/about">About</Link></li>
+              <li><Link to="/shipping-returns">Shipping &amp; Returns</Link></li>
+              <li><a href="mailto:hello@jincosmetic.co">Contact</a></li>
+              <li><Link to="/privacy-policy">Privacy Policy</Link></li>
             </ul>
           </div>
           <div className="footer__col footer__studio">

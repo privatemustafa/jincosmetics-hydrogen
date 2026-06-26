@@ -15,6 +15,8 @@ export function JinPageLayout({children}: {children: React.ReactNode}) {
   const path = location.pathname;
   const isHome = path === '/' || /^\/[a-z]{2}-[A-Z]{2}\/?$/i.test(path);
   const isProducts = path.endsWith('/products') || /\/products\/?$/i.test(path);
+  const isLegal =
+    /\/(about|shipping-returns|privacy-policy)\/?$/i.test(path);
   const [ready, setReady] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
@@ -33,8 +35,8 @@ export function JinPageLayout({children}: {children: React.ReactNode}) {
   }, [addToCartFetchers, cartOpen]);
 
   useEffect(() => {
-    document.body.classList.toggle('page-products', isProducts);
-  }, [isProducts]);
+    document.body.classList.toggle('page-products', isProducts || isLegal);
+  }, [isProducts, isLegal]);
 
   useEffect(() => {
     document.body.style.overflow = menuOpen || cartOpen ? 'hidden' : '';
@@ -111,7 +113,7 @@ export function JinPageLayout({children}: {children: React.ReactNode}) {
                 </Link>
               </li>
               <li>
-                <Link to="/#about" onClick={() => setMenuOpen(false)}>
+                <Link to="/about" onClick={() => setMenuOpen(false)}>
                   About
                 </Link>
               </li>

@@ -258,7 +258,13 @@ export function JinHomePage({variants}: Props) {
               Sign up
             </button>
           </form>
-          <p className="body-xs text-muted">By signing up you agree to our Privacy Policy.</p>
+          <p className="body-xs text-muted">
+            By signing up you agree to our{' '}
+            <Link to="/privacy-policy" className="link-cta link-cta--muted">
+              Privacy Policy
+            </Link>
+            .
+          </p>
         </div>
       </section>
     </>
