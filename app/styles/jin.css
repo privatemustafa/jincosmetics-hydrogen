@@ -1383,8 +1383,8 @@ ul { list-style: none; }
   height: 100%;
   min-height: 420px;
   object-fit: cover;
-  object-position: center 20%;
-  filter: saturate(0.88) contrast(1.02);
+  object-position: center center;
+  filter: saturate(0.95) contrast(1.01);
 }
 
 .philosophy .link-cta { color: var(--color-frost); }

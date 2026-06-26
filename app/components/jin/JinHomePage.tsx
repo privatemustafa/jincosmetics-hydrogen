@@ -190,7 +190,7 @@ export function JinHomePage({variants}: Props) {
         <div className="philosophy__visual">
           <img
             src="/images/editorial/about-editorial.jpg"
-            alt=""
+            alt="Jin model holding Prana Rose Mist"
             className="philosophy__editorial"
             loading="lazy"
             width={1600}
