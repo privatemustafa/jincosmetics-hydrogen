@@ -82,8 +82,19 @@ export function JinPageLayout({children}: {children: React.ReactNode}) {
         </Link>
 
         <div className="header__right">
-          <Link to="/#signup" className="glass-pill">
-            <span>Sign Up</span>
+          <Link
+            to="/products"
+            className={`glass-pill glass-pill--products${isProducts ? ' is-active' : ''}`}
+            aria-label="All products"
+            aria-current={isProducts ? 'page' : undefined}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <rect x="2" y="2" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.2" />
+              <rect x="9" y="2" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.2" />
+              <rect x="2" y="9" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.2" />
+              <rect x="9" y="9" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.2" />
+            </svg>
+            <span>Products</span>
           </Link>
           <CartCountButton onOpen={() => setCartOpen(true)} />
         </div>

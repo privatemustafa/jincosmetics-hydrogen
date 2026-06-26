@@ -193,6 +193,11 @@ ul { list-style: none; }
   min-width: 1rem;
 }
 
+.header .glass-pill--products.is-active {
+  background: rgba(255, 255, 255, 0.42);
+  border-color: rgba(255, 255, 255, 0.55);
+}
+
 .glass-pill--shop {
   height: 2.5rem;
   padding: 0 1.125rem;
