@@ -443,8 +443,16 @@ ul { list-style: none; }
 
 @media (max-width: 768px) {
   .header { height: var(--spacing-nav-m); padding: 0 var(--spacing-xs); }
-  .glass-pill span:not(.cart-count) { display: none; }
-  .glass-pill { padding: 0; width: 2.75rem; justify-content: center; }
+  .header .glass-pill span:not(.cart-count) { display: none; }
+  .header .glass-pill { padding: 0; width: 2.75rem; justify-content: center; }
+
+  .product-card__footer .glass-pill--shop {
+    height: 2.125rem;
+    padding: 0 0.75rem;
+    font-size: 0.6875rem;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+  }
 }
 
 /* ─── Menu Overlay ─── */

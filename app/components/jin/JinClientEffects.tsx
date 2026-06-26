@@ -1,54 +1,74 @@
 import {useEffect} from 'react';
+import {useLocation} from '@remix-run/react';
+
+function setupInViewObserver() {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) entry.target.classList.add('in-view');
+      });
+    },
+    {threshold: 0.12, rootMargin: '0px 0px -40px 0px'},
+  );
+
+  document.querySelectorAll('.watch-in-view:not(.in-view)').forEach((el) => {
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      el.classList.add('in-view');
+    }
+    observer.observe(el);
+  });
+
+  return observer;
+}
 
 export function JinClientEffects() {
+  const location = useLocation();
+
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) entry.target.classList.add('in-view');
-        });
-      },
-      {threshold: 0.12, rootMargin: '0px 0px -40px 0px'},
-    );
+    const observer = setupInViewObserver();
+    return () => observer.disconnect();
+  }, [location.pathname]);
 
-    document.querySelectorAll('.watch-in-view').forEach((el) => observer.observe(el));
+  useEffect(() => {
+    const onAnchorClick = (e: MouseEvent) => {
+      const link = (e.target as HTMLElement).closest('a[href^="#"]');
+      if (!link) return;
+      const id = link.getAttribute('href');
+      if (!id || id === '#') return;
+      const target = document.querySelector(id);
+      if (!target) return;
+      e.preventDefault();
+      target.scrollIntoView({behavior: 'smooth'});
+    };
 
-    document.querySelectorAll('a[href^="#"]').forEach((link) => {
-      link.addEventListener('click', (e) => {
-        const id = link.getAttribute('href');
-        if (!id || id === '#') return;
-        const target = document.querySelector(id);
-        if (!target) return;
-        e.preventDefault();
-        target.scrollIntoView({behavior: 'smooth'});
-      });
-    });
+    const onAddToCartClick = (e: MouseEvent) => {
+      const btn = (e.target as HTMLElement).closest('.add-to-cart');
+      if (!btn || btn.closest('form')) return;
+      e.preventDefault();
+      const card = btn.closest('.product-card');
+      if (!card) return;
 
-    document.querySelectorAll('.add-to-cart').forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        if (btn.closest('form')) return;
-        e.preventDefault();
-        const card = btn.closest('.product-card');
-        if (!card) return;
+      const id = card.getAttribute('data-product-id') || '';
+      const name = card.getAttribute('data-name') || '';
+      const price = Number(card.getAttribute('data-price') || 0);
+      const imageMap: Record<string, string> = {
+        cleanser: '/images/product-cleanser-crop.png',
+        moi: '/images/product-moi-crop.png',
+        mist: '/images/product-mist-crop.png',
+        serum: '/images/product-serum-crop.png',
+      };
 
-        const id = card.getAttribute('data-product-id') || '';
-        const name = card.getAttribute('data-name') || '';
-        const price = Number(card.getAttribute('data-price') || 0);
-        const imageMap: Record<string, string> = {
-          cleanser: '/images/product-cleanser-crop.png',
-          moi: '/images/product-moi-crop.png',
-          mist: '/images/product-mist-crop.png',
-          serum: '/images/product-serum-crop.png',
-        };
+      window.dispatchEvent(
+        new CustomEvent('jin:add-to-cart', {
+          detail: {id, name, price, qty: 1, image: imageMap[id] || ''},
+        }),
+      );
+      window.dispatchEvent(new Event('jin:open-cart'));
+    };
 
-        window.dispatchEvent(
-          new CustomEvent('jin:add-to-cart', {
-            detail: {id, name, price, qty: 1, image: imageMap[id] || ''},
-          }),
-        );
-        window.dispatchEvent(new Event('jin:open-cart'));
-      });
-    });
+    document.addEventListener('click', onAnchorClick);
+    document.addEventListener('click', onAddToCartClick);
 
     const header = document.getElementById('header');
     const sections = [...document.querySelectorAll('main > section')];
@@ -201,7 +221,8 @@ export function JinClientEffects() {
     });
 
     return () => {
-      observer.disconnect();
+      document.removeEventListener('click', onAnchorClick);
+      document.removeEventListener('click', onAddToCartClick);
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', schedule);
       window.clearInterval(testimonialTimer);
