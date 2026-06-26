@@ -5,7 +5,9 @@ export type JinProduct = {
   step: string;
   title: string;
   description: string;
+  gridDescription: string;
   price: string;
+  priceValue: number;
   image: string;
 };
 
@@ -18,7 +20,10 @@ export const JIN_PRODUCTS: JinProduct[] = [
     title: 'Balancing Gel Cleanser',
     description:
       "A weightless pH-balanced gel that dissolves impurities while preserving your skin's natural equilibrium. The essential first gesture of every Jin ritual.",
+    gridDescription:
+      "A weightless pH-balanced gel that dissolves impurities while preserving your skin's natural equilibrium.",
     price: '£48',
+    priceValue: 48,
     image: '/images/product-cleanser-crop.png',
   },
   {
@@ -29,7 +34,10 @@ export const JIN_PRODUCTS: JinProduct[] = [
     title: 'Moi Day Creme',
     description:
       "SPF 30 protection meets deep, lasting hydration. A featherlight daily shield that nourishes without weight — your skin's most refined defence.",
+    gridDescription:
+      'SPF 30 protection meets deep, lasting hydration. A featherlight daily shield that nourishes without weight.',
     price: '£62',
+    priceValue: 62,
     image: '/images/product-moi-crop.png',
   },
   {
@@ -40,7 +48,10 @@ export const JIN_PRODUCTS: JinProduct[] = [
     title: 'Prana Rose Mist',
     description:
       'An atmospheric rose mist that rebalances pH and awakens tired skin. One breath. Instant radiance. The interlude your ritual deserves.',
+    gridDescription:
+      'An atmospheric rose mist that rebalances pH and awakens tired skin. One breath. Instant radiance.',
     price: '£38',
+    priceValue: 38,
     image: '/images/product-mist-crop.png',
   },
   {
@@ -51,7 +62,10 @@ export const JIN_PRODUCTS: JinProduct[] = [
     title: 'Aquaporin Moisture Serum',
     description:
       'Aquaporin-channel technology delivers hydration to the deepest layers. Rebuilds, repairs, and restores — the final act of the Jin ritual.',
+    gridDescription:
+      'Aquaporin-channel technology delivers hydration to the deepest layers. Rebuilds, repairs, and restores.',
     price: '£72',
+    priceValue: 72,
     image: '/images/product-serum-crop.png',
   },
 ];
@@ -59,7 +73,9 @@ export const JIN_PRODUCTS: JinProduct[] = [
 export type JinVariantMap = Record<string, string>;
 
 export function mapJinVariants(
-  products: Array<{handle: string; variants: {nodes: Array<{id: string}>}} | null>,
+  products: Array<
+    {handle: string; variants: {nodes: Array<{id: string}>}} | null | undefined
+  >,
 ): JinVariantMap {
   const map: JinVariantMap = {};
   for (const product of products) {

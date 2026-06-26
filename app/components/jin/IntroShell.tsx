@@ -24,8 +24,7 @@ export function IntroShell({enabled}: {enabled: boolean}) {
         counter: document.getElementById('introCounter'),
         logoStage: document.getElementById('introLogoStage'),
         onComplete: () => {
-          document.querySelector('.hero__img')?.classList.add('is-visible');
-          document.querySelector('.hero__tagline')?.classList.add('is-visible');
+          revealHero();
           setDone(true);
         },
       });
@@ -34,12 +33,18 @@ export function IntroShell({enabled}: {enabled: boolean}) {
         if (!intro.classList.contains('is-hidden')) {
           intro.classList.add('is-hidden');
           stop();
-          document.querySelector('.hero__img')?.classList.add('is-visible');
-          document.querySelector('.hero__tagline')?.classList.add('is-visible');
+          revealHero();
           setDone(true);
         }
       }, 12000);
     });
+
+    function revealHero() {
+      document.querySelector('.hero__img')?.classList.add('is-visible');
+      document.querySelector('.hero__tagline')?.classList.add('is-visible');
+      document.documentElement.classList.add('lenis');
+      window.dispatchEvent(new Event('resize'));
+    }
 
     return () => {
       window.clearTimeout(fallback);

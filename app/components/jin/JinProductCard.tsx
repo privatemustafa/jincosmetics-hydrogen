@@ -9,11 +9,14 @@ type Props = {
 
 export function JinProductCard({product, variantId, layout = 'carousel'}: Props) {
   const layoutClass = layout === 'grid' ? ' product-card--grid' : '';
+  const description = layout === 'grid' ? product.gridDescription : product.description;
 
   return (
     <article
       className={`product-card product-card--${product.cardClass}${layoutClass}`}
       data-product-id={product.id}
+      data-name={product.title}
+      data-price={product.priceValue}
     >
       <div className="product-card__visual">
         <div className="product-card__frame">
@@ -27,7 +30,7 @@ export function JinProductCard({product, variantId, layout = 'carousel'}: Props)
         ) : (
           <h3 className="heading-2 text-frost">{product.title}</h3>
         )}
-        <p className="body-sm text-muted">{product.description}</p>
+        <p className="body-sm text-muted">{description}</p>
         <div className="product-card__footer">
           <span className="product-card__price">{product.price}</span>
           {variantId ? (
@@ -39,7 +42,7 @@ export function JinProductCard({product, variantId, layout = 'carousel'}: Props)
               {(fetcher) => (
                 <button
                   type="submit"
-                  className="glass-pill glass-pill--shop"
+                  className="glass-pill glass-pill--shop add-to-cart"
                   disabled={fetcher.state !== 'idle'}
                 >
                   Shop now
@@ -47,7 +50,7 @@ export function JinProductCard({product, variantId, layout = 'carousel'}: Props)
               )}
             </CartForm>
           ) : (
-            <button type="button" className="glass-pill glass-pill--shop" disabled>
+            <button type="button" className="glass-pill glass-pill--shop add-to-cart">
               Shop now
             </button>
           )}

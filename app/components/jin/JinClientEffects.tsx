@@ -13,6 +13,43 @@ export function JinClientEffects() {
 
     document.querySelectorAll('.watch-in-view').forEach((el) => observer.observe(el));
 
+    document.querySelectorAll('a[href^="#"]').forEach((link) => {
+      link.addEventListener('click', (e) => {
+        const id = link.getAttribute('href');
+        if (!id || id === '#') return;
+        const target = document.querySelector(id);
+        if (!target) return;
+        e.preventDefault();
+        target.scrollIntoView({behavior: 'smooth'});
+      });
+    });
+
+    document.querySelectorAll('.add-to-cart').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        if (btn.closest('form')) return;
+        e.preventDefault();
+        const card = btn.closest('.product-card');
+        if (!card) return;
+
+        const id = card.getAttribute('data-product-id') || '';
+        const name = card.getAttribute('data-name') || '';
+        const price = Number(card.getAttribute('data-price') || 0);
+        const imageMap: Record<string, string> = {
+          cleanser: '/images/product-cleanser-crop.png',
+          moi: '/images/product-moi-crop.png',
+          mist: '/images/product-mist-crop.png',
+          serum: '/images/product-serum-crop.png',
+        };
+
+        window.dispatchEvent(
+          new CustomEvent('jin:add-to-cart', {
+            detail: {id, name, price, qty: 1, image: imageMap[id] || ''},
+          }),
+        );
+        window.dispatchEvent(new Event('jin:open-cart'));
+      });
+    });
+
     const header = document.getElementById('header');
     const sections = [...document.querySelectorAll('main > section')];
     const BLEND = 110;

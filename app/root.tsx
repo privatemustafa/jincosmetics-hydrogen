@@ -28,7 +28,6 @@ import invariant from 'tiny-invariant';
 import {JinPageLayout} from '~/components/jin/JinPageLayout';
 import {GenericError} from '~/components/GenericError';
 import {NotFound} from '~/components/NotFound';
-import favicon from '~/assets/favicon.svg';
 import {seoPayload} from '~/lib/seo.server';
 import jinStyles from '~/styles/jin.css?url';
 
@@ -74,7 +73,7 @@ export const links: LinksFunction = () => {
       rel: 'preconnect',
       href: 'https://shop.app',
     },
-    {rel: 'icon', type: 'image/svg+xml', href: favicon},
+    {rel: 'icon', type: 'image/png', href: '/images/logo-jin.png'},
   ];
 };
 
@@ -115,7 +114,7 @@ async function loadCriticalData({request, context}: LoaderFunctionArgs) {
     consent: {
       checkoutDomain: env.PUBLIC_CHECKOUT_DOMAIN,
       storefrontAccessToken: env.PUBLIC_STOREFRONT_API_TOKEN,
-      withPrivacyBanner: true,
+      withPrivacyBanner: false,
     },
     selectedLocale: storefront.i18n,
   };

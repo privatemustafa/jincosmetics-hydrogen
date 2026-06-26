@@ -2,8 +2,7 @@ import {Suspense, useEffect, useState} from 'react';
 import {Await, useLocation, useRouteLoaderData} from '@remix-run/react';
 import {CartForm, type CartReturn} from '@shopify/hydrogen';
 import {Link} from '~/components/Link';
-import {Cart} from '~/components/Cart';
-import {CartLoading} from '~/components/CartLoading';
+import {JinCartDrawer} from '~/components/jin/JinCartDrawer';
 import type {RootLoader} from '~/root';
 import {JinFooter} from '~/components/jin/JinFooter';
 import {PreviewGate} from '~/components/jin/PreviewGate';
@@ -21,6 +20,12 @@ export function JinPageLayout({children}: {children: React.ReactNode}) {
   const [cartOpen, setCartOpen] = useState(false);
   const rootData = useRouteLoaderData<RootLoader>('root');
   const addToCartFetchers = useCartFetchers(CartForm.ACTIONS.LinesAdd);
+
+  useEffect(() => {
+    const openCart = () => setCartOpen(true);
+    window.addEventListener('jin:open-cart', openCart);
+    return () => window.removeEventListener('jin:open-cart', openCart);
+  }, []);
 
   useEffect(() => {
     if (cartOpen || !addToCartFetchers.length) return;
@@ -137,7 +142,7 @@ export function JinPageLayout({children}: {children: React.ReactNode}) {
           aria-label="Close cart"
           onClick={() => setCartOpen(false)}
         />
-        <aside className="cart-drawer__panel glass-panel jin-cart-panel">
+        <aside className="cart-drawer__panel glass-panel">
           <div className="cart-drawer__header">
             <h2 className="heading-2">Your Cart</h2>
             <button
@@ -151,15 +156,16 @@ export function JinPageLayout({children}: {children: React.ReactNode}) {
               </svg>
             </button>
           </div>
-          <div className="cart-drawer__body jin-hydrogen-cart">
-            <Suspense fallback={<CartLoading />}>
-              <Await resolve={rootData?.cart}>
-                {(cart) => (
-                  <Cart layout="drawer" onClose={() => setCartOpen(false)} cart={(cart ?? null) as CartReturn | null} />
-                )}
-              </Await>
-            </Suspense>
-          </div>
+          <Suspense fallback={<p className="cart-empty">Loading cart…</p>}>
+            <Await resolve={rootData?.cart}>
+              {(cart) => (
+                <JinCartDrawer
+                  cart={(cart ?? null) as CartReturn | null}
+                  onClose={() => setCartOpen(false)}
+                />
+              )}
+            </Await>
+          </Suspense>
         </aside>
       </div>
 
