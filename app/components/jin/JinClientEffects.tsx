@@ -31,6 +31,33 @@ export function JinClientEffects() {
   }, [location.pathname]);
 
   useEffect(() => {
+    const strip = document.querySelector('.collection-strip');
+    const stripInner = document.querySelector('.collection-strip__inner');
+    const hint = document.getElementById('collectionSwipeHint');
+    if (!strip || !stripInner || !hint) return;
+
+    const storageKey = 'jin-collection-swipe-hint';
+
+    const dismissHint = () => {
+      strip.classList.add('is-scrolled');
+      hint.classList.add('is-dismissed');
+      localStorage.setItem(storageKey, '1');
+    };
+
+    if (localStorage.getItem(storageKey)) {
+      dismissHint();
+      return;
+    }
+
+    const onScroll = () => {
+      if (stripInner.scrollLeft > 12) dismissHint();
+    };
+
+    stripInner.addEventListener('scroll', onScroll, {passive: true});
+    return () => stripInner.removeEventListener('scroll', onScroll);
+  }, [location.pathname]);
+
+  useEffect(() => {
     const onAnchorClick = (e: MouseEvent) => {
       const link = (e.target as HTMLElement).closest('a[href^="#"]');
       if (!link) return;

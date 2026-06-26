@@ -96,6 +96,22 @@ export function JinHomePage({products}: Props) {
             </Link>
           </article>
         </div>
+        <div className="collection-strip__swipe-hint" id="collectionSwipeHint" aria-hidden="true">
+          <div className="collection-strip__swipe-pill glass-pill">
+            <span className="collection-strip__swipe-motion" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <path
+                  d="M4 9h8M10 6l3 3-3 3"
+                  stroke="currentColor"
+                  strokeWidth="1.3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </span>
+            <span className="figuration">Swipe to explore</span>
+          </div>
+        </div>
       </section>
 
       <section className="section section--deep" id="collection">
