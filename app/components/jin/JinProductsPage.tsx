@@ -1,12 +1,12 @@
 import {Link} from '~/components/Link';
 import {JinProductCard} from '~/components/jin/JinProductCard';
-import {JIN_PRODUCTS, type JinVariantMap} from '~/lib/jin-products';
+import type {JinProduct} from '~/lib/jin-products';
 
 type Props = {
-  variants: JinVariantMap;
+  products: JinProduct[];
 };
 
-export function JinProductsPage({variants}: Props) {
+export function JinProductsPage({products}: Props) {
   return (
     <div className="products-page">
       <section className="products-hero watch-in-view">
@@ -27,13 +27,8 @@ export function JinProductsPage({variants}: Props) {
       <section className="products-grid watch-in-view" aria-label="All products">
         <div className="container">
           <div className="products-grid__layout">
-            {JIN_PRODUCTS.map((product) => (
-              <JinProductCard
-                key={product.id}
-                product={product}
-                variantId={variants[product.handle]}
-                layout="grid"
-              />
+            {products.map((product) => (
+              <JinProductCard key={product.handle} product={product} layout="grid" />
             ))}
           </div>
         </div>

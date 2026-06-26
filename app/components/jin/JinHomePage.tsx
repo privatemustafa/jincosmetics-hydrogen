@@ -1,12 +1,14 @@
 import {Link} from '~/components/Link';
 import {JinProductCard} from '~/components/jin/JinProductCard';
-import {JIN_PRODUCTS, type JinVariantMap} from '~/lib/jin-products';
+import {findJinProduct, type JinProduct} from '~/lib/jin-products';
 
 type Props = {
-  variants: JinVariantMap;
+  products: JinProduct[];
 };
 
-export function JinHomePage({variants}: Props) {
+export function JinHomePage({products}: Props) {
+  const mist = findJinProduct(products, 'prana-rose-mist');
+  const moi = findJinProduct(products, 'moi-day-creme');
   return (
     <>
       <section className="hero watch-in-view" id="hero">
@@ -109,11 +111,10 @@ export function JinHomePage({variants}: Props) {
 
           <div className="carousel" id="productCarousel">
             <div className="carousel__track" id="carouselTrack">
-              {JIN_PRODUCTS.map((product) => (
+              {products.map((product) => (
                 <JinProductCard
-                  key={product.id}
+                  key={product.handle}
                   product={product}
-                  variantId={variants[product.handle]}
                   layout="carousel"
                 />
               ))}
@@ -152,21 +153,29 @@ export function JinHomePage({variants}: Props) {
       <section className="promo-grid">
         <Link to="/#collection" className="promo-card watch-in-view">
           <div className="promo-card__img">
-            <img src="/images/product-prana-rose-mist.png" alt="Prana Rose Mist" loading="lazy" />
+            <img
+              src={mist?.image || '/images/product-prana-rose-mist.png'}
+              alt={mist?.title || 'Prana Rose Mist'}
+              loading="lazy"
+            />
           </div>
           <div className="promo-card__content">
             <p className="figuration">Just Arrived</p>
-            <h3 className="heading-2">Prana Rose Mist</h3>
+            <h3 className="heading-2">{mist?.title || 'Prana Rose Mist'}</h3>
             <span className="link-cta">Discover the mist</span>
           </div>
         </Link>
         <Link to="/#collection" className="promo-card watch-in-view">
           <div className="promo-card__img">
-            <img src="/images/product-moi-day-creme.png" alt="Moi Day Creme" loading="lazy" />
+            <img
+              src={moi?.image || '/images/product-moi-day-creme.png'}
+              alt={moi?.title || 'Moi Day Creme'}
+              loading="lazy"
+            />
           </div>
           <div className="promo-card__content">
             <p className="figuration">Cult Favourite</p>
-            <h3 className="heading-2">Moi Day Creme</h3>
+            <h3 className="heading-2">{moi?.title || 'Moi Day Creme'}</h3>
             <span className="link-cta">Experience the creme</span>
           </div>
         </Link>

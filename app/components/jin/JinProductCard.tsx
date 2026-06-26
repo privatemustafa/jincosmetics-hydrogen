@@ -3,13 +3,13 @@ import type {JinProduct} from '~/lib/jin-products';
 
 type Props = {
   product: JinProduct;
-  variantId?: string;
   layout?: 'carousel' | 'grid';
 };
 
-export function JinProductCard({product, variantId, layout = 'carousel'}: Props) {
+export function JinProductCard({product, layout = 'carousel'}: Props) {
   const layoutClass = layout === 'grid' ? ' product-card--grid' : '';
   const description = layout === 'grid' ? product.gridDescription : product.description;
+  const canPurchase = Boolean(product.variantId && product.availableForSale);
 
   return (
     <article
@@ -17,6 +17,7 @@ export function JinProductCard({product, variantId, layout = 'carousel'}: Props)
       data-product-id={product.id}
       data-name={product.title}
       data-price={product.priceValue}
+      data-image={product.image}
     >
       <div className="product-card__visual">
         <div className="product-card__frame">
@@ -33,11 +34,11 @@ export function JinProductCard({product, variantId, layout = 'carousel'}: Props)
         <p className="body-sm text-muted">{description}</p>
         <div className="product-card__footer">
           <span className="product-card__price">{product.price}</span>
-          {variantId ? (
+          {canPurchase ? (
             <CartForm
               route="/cart"
               action={CartForm.ACTIONS.LinesAdd}
-              inputs={{lines: [{merchandiseId: variantId, quantity: 1}]}}
+              inputs={{lines: [{merchandiseId: product.variantId!, quantity: 1}]}}
             >
               {(fetcher) => (
                 <button
@@ -50,8 +51,8 @@ export function JinProductCard({product, variantId, layout = 'carousel'}: Props)
               )}
             </CartForm>
           ) : (
-            <button type="button" className="glass-pill glass-pill--shop add-to-cart">
-              Shop now
+            <button type="button" className="glass-pill glass-pill--shop" disabled>
+              {product.variantId ? 'Sold out' : 'Shop now'}
             </button>
           )}
         </div>

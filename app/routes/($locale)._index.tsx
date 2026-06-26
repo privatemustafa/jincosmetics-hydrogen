@@ -3,7 +3,7 @@ import {useLoaderData} from '@remix-run/react';
 import {getSeoMeta} from '@shopify/hydrogen';
 
 import {JinHomePage} from '~/components/jin/JinHomePage';
-import {JIN_VARIANTS_QUERY, mapJinVariants} from '~/lib/jin-products';
+import {jinProductsCacheHeaders, loadJinProducts} from '~/lib/jin-products';
 import {routeHeaders} from '~/data/cache';
 
 export const headers = routeHeaders;
@@ -18,28 +18,20 @@ export async function loader({params, context, request}: LoaderFunctionArgs) {
     throw new Response(null, {status: 404});
   }
 
-  const variantData = await context.storefront
-    .query(JIN_VARIANTS_QUERY)
-    .catch(() => null);
+  const products = await loadJinProducts(context.storefront);
 
-  const variants = variantData
-    ? mapJinVariants([
-        variantData.cleanser,
-        variantData.moi,
-        variantData.mist,
-        variantData.serum,
-      ])
-    : {};
-
-  return json({
-    variants,
-    seo: {
-      title: 'Jin Cosmetics | Luxury Skincare Rituals',
-      description:
-        'Jin Cosmetics — mercury-toned luxury skincare. Balancing gel cleanser, Moi Day Creme, Prana rose mist & Aquaporin moisture serum.',
-      url: request.url,
+  return json(
+    {
+      products,
+      seo: {
+        title: 'Jin Cosmetics | Luxury Skincare Rituals',
+        description:
+          'Jin Cosmetics — mercury-toned luxury skincare. Balancing gel cleanser, Moi Day Creme, Prana rose mist & Aquaporin moisture serum.',
+        url: request.url,
+      },
     },
-  });
+    {headers: jinProductsCacheHeaders},
+  );
 }
 
 export const meta = ({data}: MetaArgs<typeof loader>) => {
@@ -47,6 +39,6 @@ export const meta = ({data}: MetaArgs<typeof loader>) => {
 };
 
 export default function Homepage() {
-  const {variants} = useLoaderData<typeof loader>();
-  return <JinHomePage variants={variants} />;
+  const {products} = useLoaderData<typeof loader>();
+  return <JinHomePage products={products} />;
 }
