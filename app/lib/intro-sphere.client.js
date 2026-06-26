@@ -199,6 +199,7 @@ function createSphere(canvas, options = {}) {
   scene.add(fill)
 
   const norm = isMobile ? 620 : 980
+  const pointerEl = options.pointerEl || canvas
   const balls = SCATTER.map((s, i) => {
     const sx = clamp(0.5 + s.x / norm, 0.08, 0.92)
     const sy = clamp(0.5 - s.y / (0.68 * norm), 0.12, 0.88)
@@ -256,20 +257,51 @@ function createSphere(canvas, options = {}) {
   ro.observe(canvas)
   resize()
 
-  function onPointerMove(e) {
-    if (e.pointerType !== 'mouse') return
-    const rect = canvas.getBoundingClientRect()
+  function updatePointer(e) {
+    const rect = pointerEl.getBoundingClientRect()
+    if (!rect.width || !rect.height) return
     pointer.x = clamp((e.clientX - rect.left) / rect.width, 0, 1)
     pointer.y = clamp(1 - (e.clientY - rect.top) / rect.height, 0, 1)
     pointer.targetStrength = 1
+  }
+
+  function onPointerMove(e) {
+    updatePointer(e)
+  }
+
+  function onPointerDown(e) {
+    if (pointerEl.setPointerCapture && e.pointerId != null) {
+      try {
+        pointerEl.setPointerCapture(e.pointerId)
+      } catch {
+        // ignore capture errors on unsupported browsers
+      }
+    }
+    updatePointer(e)
   }
 
   function onPointerLeave() {
     pointer.targetStrength = 0
   }
 
-  canvas.addEventListener('pointermove', onPointerMove)
-  canvas.addEventListener('pointerleave', onPointerLeave)
+  function onPointerUp(e) {
+    if (pointerEl.releasePointerCapture && e.pointerId != null) {
+      try {
+        if (pointerEl.hasPointerCapture?.(e.pointerId)) {
+          pointerEl.releasePointerCapture(e.pointerId)
+        }
+      } catch {
+        // ignore release errors
+      }
+    }
+    pointer.targetStrength = 0
+  }
+
+  pointerEl.addEventListener('pointermove', onPointerMove)
+  pointerEl.addEventListener('pointerdown', onPointerDown)
+  pointerEl.addEventListener('pointerleave', onPointerLeave)
+  pointerEl.addEventListener('pointerup', onPointerUp)
+  pointerEl.addEventListener('pointercancel', onPointerUp)
 
   function updateScene() {
     const delta = clock.getDelta()
@@ -395,8 +427,11 @@ function createSphere(canvas, options = {}) {
     destroy() {
       running = false
       if (rafId) cancelAnimationFrame(rafId)
-      canvas.removeEventListener('pointermove', onPointerMove)
-      canvas.removeEventListener('pointerleave', onPointerLeave)
+      pointerEl.removeEventListener('pointermove', onPointerMove)
+      pointerEl.removeEventListener('pointerdown', onPointerDown)
+      pointerEl.removeEventListener('pointerleave', onPointerLeave)
+      pointerEl.removeEventListener('pointerup', onPointerUp)
+      pointerEl.removeEventListener('pointercancel', onPointerUp)
       ro.disconnect()
       marching.geometry.dispose()
       material.dispose()
@@ -479,6 +514,7 @@ export function initIntroSphere({ intro, canvas, glow, shadow, counter, logoStag
 
   const sphere = createSphere(canvas, {
     onFrame: updateHtmlLogos,
+    pointerEl: intro,
   })
 
   function sync() {

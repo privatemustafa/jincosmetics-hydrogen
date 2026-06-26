@@ -5,6 +5,23 @@ export function IntroShell({enabled}: {enabled: boolean}) {
   const started = useRef(false);
 
   useEffect(() => {
+    if (!enabled || done) return;
+
+    document.documentElement.classList.add('intro-locked');
+
+    const blockScroll = (event: TouchEvent) => {
+      event.preventDefault();
+    };
+
+    document.addEventListener('touchmove', blockScroll, {passive: false});
+
+    return () => {
+      document.documentElement.classList.remove('intro-locked');
+      document.removeEventListener('touchmove', blockScroll);
+    };
+  }, [enabled, done]);
+
+  useEffect(() => {
     if (!enabled || started.current || done) return;
     started.current = true;
 
@@ -40,6 +57,7 @@ export function IntroShell({enabled}: {enabled: boolean}) {
     });
 
     function revealHero() {
+      document.documentElement.classList.remove('intro-locked');
       document.querySelector('.hero__img')?.classList.add('is-visible');
       document.querySelector('.hero__tagline')?.classList.add('is-visible');
       document.documentElement.classList.add('lenis');

@@ -299,6 +299,14 @@ ul { list-style: none; }
 .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* ─── Intro / Preloader — STEM-style mercury sphere ─── */
+html.intro-locked,
+html.intro-locked body {
+  overflow: hidden;
+  height: 100%;
+  touch-action: none;
+  overscroll-behavior: none;
+}
+
 .intro {
   position: fixed;
   inset: 0;
@@ -308,6 +316,8 @@ ul { list-style: none; }
   justify-content: center;
   background: linear-gradient(165deg, #d8e0e7 0%, #eef2f5 42%, #c8d4dc 100%);
   overflow: hidden;
+  touch-action: none;
+  overscroll-behavior: none;
   transition: opacity 0.55s var(--ease-in-out-cubic), visibility 0.55s;
 }
 
