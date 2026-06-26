@@ -199,55 +199,43 @@ export function JinHomePage({variants}: Props) {
         </div>
       </section>
 
-      <section className="section testimonials">
-        <div className="testimonials__layout">
-          <div className="testimonials__media">
-            <img
-              src="/images/editorial/testimonial-ritual.jpg"
-              alt=""
-              className="testimonials__photo"
-              loading="lazy"
-              width={1600}
-              height={2000}
-            />
+      <section className="section section--light testimonials watch-in-view">
+        <div className="container container--narrow testimonials__inner">
+          <p className="figuration">In Their Words</p>
+          <div className="testimonial-slider" id="testimonialSlider">
+            <blockquote className="testimonial active">
+              <p className="heading-2">
+                &ldquo;The Moi Day Creme is the only SPF I&apos;ve ever wanted to wear. It melts in,
+                protects all day, and my skin has never looked this even.&rdquo;
+              </p>
+              <cite className="figuration">— Elena M., London</cite>
+            </blockquote>
+            <blockquote className="testimonial">
+              <p className="heading-2">
+                &ldquo;Prana Rose Mist is the pause my routine was missing. One spritz and everything
+                feels rebalanced — I keep one at my desk and one in my bag.&rdquo;
+              </p>
+              <cite className="figuration">— Sofia K., New York</cite>
+            </blockquote>
+            <blockquote className="testimonial">
+              <p className="heading-2">
+                &ldquo;After three weeks with Aquaporin Serum, my barrier is visibly stronger. This is
+                the kind of result you expect from a clinic, not a bathroom shelf.&rdquo;
+              </p>
+              <cite className="figuration">— Amara T., Paris</cite>
+            </blockquote>
           </div>
-          <div className="testimonials__content">
-            <p className="figuration watch-in-view">In Their Words</p>
-            <div className="testimonial-slider watch-in-view" id="testimonialSlider">
-              <blockquote className="testimonial active">
-                <p className="heading-2">
-                  &ldquo;The Moi Day Creme is the only SPF I&apos;ve ever wanted to wear. It melts in,
-                  protects all day, and my skin has never looked this even.&rdquo;
-                </p>
-                <cite className="figuration">— Elena M., London</cite>
-              </blockquote>
-              <blockquote className="testimonial">
-                <p className="heading-2">
-                  &ldquo;Prana Rose Mist is the pause my routine was missing. One spritz and everything
-                  feels rebalanced — I keep one at my desk and one in my bag.&rdquo;
-                </p>
-                <cite className="figuration">— Sofia K., New York</cite>
-              </blockquote>
-              <blockquote className="testimonial">
-                <p className="heading-2">
-                  &ldquo;After three weeks with Aquaporin Serum, my barrier is visibly stronger. This is
-                  the kind of result you expect from a clinic, not a bathroom shelf.&rdquo;
-                </p>
-                <cite className="figuration">— Amara T., Paris</cite>
-              </blockquote>
-            </div>
-            <div className="testimonial-controls">
-              <button type="button" className="glass-pill glass-pill--icon" id="testPrev" aria-label="Previous testimonial">
-                <svg width="12" height="12" viewBox="0 0 12 12">
-                  <path d="M8 2L4 6l4 4" stroke="currentColor" strokeWidth="1.5" fill="none" />
-                </svg>
-              </button>
-              <button type="button" className="glass-pill glass-pill--icon" id="testNext" aria-label="Next testimonial">
-                <svg width="12" height="12" viewBox="0 0 12 12">
-                  <path d="M4 2l4 4-4 4" stroke="currentColor" strokeWidth="1.5" fill="none" />
-                </svg>
-              </button>
-            </div>
+          <div className="testimonial-controls">
+            <button type="button" className="glass-pill glass-pill--icon" id="testPrev" aria-label="Previous testimonial">
+              <svg width="12" height="12" viewBox="0 0 12 12">
+                <path d="M8 2L4 6l4 4" stroke="currentColor" strokeWidth="1.5" fill="none" />
+              </svg>
+            </button>
+            <button type="button" className="glass-pill glass-pill--icon" id="testNext" aria-label="Next testimonial">
+              <svg width="12" height="12" viewBox="0 0 12 12">
+                <path d="M4 2l4 4-4 4" stroke="currentColor" strokeWidth="1.5" fill="none" />
+              </svg>
+            </button>
           </div>
         </div>
       </section>
