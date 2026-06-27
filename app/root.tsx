@@ -73,6 +73,12 @@ export const links: LinksFunction = () => {
       rel: 'preconnect',
       href: 'https://shop.app',
     },
+    {
+      rel: 'preload',
+      as: 'image',
+      href: '/images/hero-main.png',
+      fetchPriority: 'high',
+    },
     {rel: 'icon', type: 'image/png', href: '/images/logo-jin.png'},
   ];
 };
@@ -158,7 +164,7 @@ function Layout({children}: {children?: React.ReactNode}) {
         <link rel="stylesheet" href={jinStyles} />
         <script
           dangerouslySetInnerHTML={{
-            __html: `if(localStorage.getItem('jin-preview-auth')!=='jc-preview-v1'){document.documentElement.classList.add('preview-locked')}`,
+            __html: `document.documentElement.classList.add('js');if(localStorage.getItem('jin-preview-auth')!=='jc-preview-v1'){document.documentElement.classList.add('preview-locked')}`,
           }}
         />
         <Meta />

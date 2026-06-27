@@ -1,15 +1,15 @@
-import {CartForm} from '@shopify/hydrogen';
 import type {JinProduct} from '~/lib/jin-products';
+import {JinAddToCartButton} from '~/components/jin/JinAddToCartButton';
 
 type Props = {
   product: JinProduct;
   layout?: 'carousel' | 'grid';
+  priority?: boolean;
 };
 
-export function JinProductCard({product, layout = 'carousel'}: Props) {
+export function JinProductCard({product, layout = 'carousel', priority = false}: Props) {
   const layoutClass = layout === 'grid' ? ' product-card--grid' : '';
   const description = layout === 'grid' ? product.gridDescription : product.description;
-  const canPurchase = Boolean(product.variantId && product.availableForSale);
 
   return (
     <article
@@ -21,7 +21,15 @@ export function JinProductCard({product, layout = 'carousel'}: Props) {
     >
       <div className="product-card__visual">
         <div className="product-card__frame">
-          <img src={product.image} alt={product.title} loading="lazy" />
+          <img
+            src={product.image}
+            alt={product.title}
+            width={400}
+            height={400}
+            loading={priority ? 'eager' : 'lazy'}
+            decoding="async"
+            fetchPriority={priority ? 'high' : undefined}
+          />
         </div>
       </div>
       <div className="product-card__body">
@@ -34,27 +42,7 @@ export function JinProductCard({product, layout = 'carousel'}: Props) {
         <p className="body-sm text-muted">{description}</p>
         <div className="product-card__footer">
           <span className="product-card__price">{product.price}</span>
-          {canPurchase ? (
-            <CartForm
-              route="/cart"
-              action={CartForm.ACTIONS.LinesAdd}
-              inputs={{lines: [{merchandiseId: product.variantId!, quantity: 1}]}}
-            >
-              {(fetcher) => (
-                <button
-                  type="submit"
-                  className="glass-pill glass-pill--shop add-to-cart"
-                  disabled={fetcher.state !== 'idle'}
-                >
-                  Shop now
-                </button>
-              )}
-            </CartForm>
-          ) : (
-            <button type="button" className="glass-pill glass-pill--shop" disabled>
-              {product.variantId ? 'Sold out' : 'Shop now'}
-            </button>
-          )}
+          <JinAddToCartButton product={product} />
         </div>
       </div>
     </article>

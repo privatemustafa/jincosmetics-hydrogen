@@ -90,30 +90,97 @@ export type FeaturedCollectionDetailsFragment = Pick<
   >;
 };
 
-export type JinProductVariantsQueryVariables = StorefrontAPI.Exact<{
+export type JinProductFieldsFragment = Pick<
+  StorefrontAPI.Product,
+  'handle' | 'title' | 'description'
+> & {
+  featuredImage?: StorefrontAPI.Maybe<
+    Pick<StorefrontAPI.Image, 'url' | 'altText'>
+  >;
+  variants: {
+    nodes: Array<
+      Pick<StorefrontAPI.ProductVariant, 'id' | 'availableForSale'> & {
+        price: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
+        image?: StorefrontAPI.Maybe<
+          Pick<StorefrontAPI.Image, 'url' | 'altText'>
+        >;
+      }
+    >;
+  };
+};
+
+export type JinProductsQueryVariables = StorefrontAPI.Exact<{
   country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
   language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
 }>;
 
-export type JinProductVariantsQuery = {
+export type JinProductsQuery = {
   cleanser?: StorefrontAPI.Maybe<
-    Pick<StorefrontAPI.Product, 'handle'> & {
-      variants: {nodes: Array<Pick<StorefrontAPI.ProductVariant, 'id'>>};
+    Pick<StorefrontAPI.Product, 'handle' | 'title' | 'description'> & {
+      featuredImage?: StorefrontAPI.Maybe<
+        Pick<StorefrontAPI.Image, 'url' | 'altText'>
+      >;
+      variants: {
+        nodes: Array<
+          Pick<StorefrontAPI.ProductVariant, 'id' | 'availableForSale'> & {
+            price: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
+            image?: StorefrontAPI.Maybe<
+              Pick<StorefrontAPI.Image, 'url' | 'altText'>
+            >;
+          }
+        >;
+      };
     }
   >;
   moi?: StorefrontAPI.Maybe<
-    Pick<StorefrontAPI.Product, 'handle'> & {
-      variants: {nodes: Array<Pick<StorefrontAPI.ProductVariant, 'id'>>};
+    Pick<StorefrontAPI.Product, 'handle' | 'title' | 'description'> & {
+      featuredImage?: StorefrontAPI.Maybe<
+        Pick<StorefrontAPI.Image, 'url' | 'altText'>
+      >;
+      variants: {
+        nodes: Array<
+          Pick<StorefrontAPI.ProductVariant, 'id' | 'availableForSale'> & {
+            price: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
+            image?: StorefrontAPI.Maybe<
+              Pick<StorefrontAPI.Image, 'url' | 'altText'>
+            >;
+          }
+        >;
+      };
     }
   >;
   mist?: StorefrontAPI.Maybe<
-    Pick<StorefrontAPI.Product, 'handle'> & {
-      variants: {nodes: Array<Pick<StorefrontAPI.ProductVariant, 'id'>>};
+    Pick<StorefrontAPI.Product, 'handle' | 'title' | 'description'> & {
+      featuredImage?: StorefrontAPI.Maybe<
+        Pick<StorefrontAPI.Image, 'url' | 'altText'>
+      >;
+      variants: {
+        nodes: Array<
+          Pick<StorefrontAPI.ProductVariant, 'id' | 'availableForSale'> & {
+            price: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
+            image?: StorefrontAPI.Maybe<
+              Pick<StorefrontAPI.Image, 'url' | 'altText'>
+            >;
+          }
+        >;
+      };
     }
   >;
   serum?: StorefrontAPI.Maybe<
-    Pick<StorefrontAPI.Product, 'handle'> & {
-      variants: {nodes: Array<Pick<StorefrontAPI.ProductVariant, 'id'>>};
+    Pick<StorefrontAPI.Product, 'handle' | 'title' | 'description'> & {
+      featuredImage?: StorefrontAPI.Maybe<
+        Pick<StorefrontAPI.Image, 'url' | 'altText'>
+      >;
+      variants: {
+        nodes: Array<
+          Pick<StorefrontAPI.ProductVariant, 'id' | 'availableForSale'> & {
+            price: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
+            image?: StorefrontAPI.Maybe<
+              Pick<StorefrontAPI.Image, 'url' | 'altText'>
+            >;
+          }
+        >;
+      };
     }
   >;
 };
@@ -1026,9 +1093,9 @@ export type PaginatedProductsSearchQuery = {
 };
 
 interface GeneratedQueryTypes {
-  '#graphql\n  query JinProductVariants($country: CountryCode, $language: LanguageCode)\n  @inContext(country: $country, language: $language) {\n    cleanser: product(handle: "balancing-gel-cleanser") {\n      handle\n      variants(first: 1) {\n        nodes {\n          id\n        }\n      }\n    }\n    moi: product(handle: "moi-day-creme") {\n      handle\n      variants(first: 1) {\n        nodes {\n          id\n        }\n      }\n    }\n    mist: product(handle: "prana-rose-mist") {\n      handle\n      variants(first: 1) {\n        nodes {\n          id\n        }\n      }\n    }\n    serum: product(handle: "aquaporin-moisture-serum") {\n      handle\n      variants(first: 1) {\n        nodes {\n          id\n        }\n      }\n    }\n  }\n': {
-    return: JinProductVariantsQuery;
-    variables: JinProductVariantsQueryVariables;
+  '#graphql\n  fragment JinProductFields on Product {\n    handle\n    title\n    description\n    featuredImage {\n      url\n      altText\n    }\n    variants(first: 1) {\n      nodes {\n        id\n        availableForSale\n        price {\n          amount\n          currencyCode\n        }\n        image {\n          url\n          altText\n        }\n      }\n    }\n  }\n\n  query JinProducts($country: CountryCode, $language: LanguageCode)\n  @inContext(country: $country, language: $language) {\n    cleanser: product(handle: "balancing-gel-cleanser") {\n      ...JinProductFields\n    }\n    moi: product(handle: "moi-day-creme") {\n      ...JinProductFields\n    }\n    mist: product(handle: "prana-rose-mist") {\n      ...JinProductFields\n    }\n    serum: product(handle: "aquaporin-moisture-serum") {\n      ...JinProductFields\n    }\n  }\n': {
+    return: JinProductsQuery;
+    variables: JinProductsQueryVariables;
   };
   '#graphql\n  query layout(\n    $language: LanguageCode\n    $headerMenuHandle: String!\n    $footerMenuHandle: String!\n  ) @inContext(language: $language) {\n    shop {\n      ...Shop\n    }\n    headerMenu: menu(handle: $headerMenuHandle) {\n      ...Menu\n    }\n    footerMenu: menu(handle: $footerMenuHandle) {\n      ...Menu\n    }\n  }\n  fragment Shop on Shop {\n    id\n    name\n    description\n    primaryDomain {\n      url\n    }\n    brand {\n      logo {\n        image {\n          url\n        }\n      }\n    }\n  }\n  fragment MenuItem on MenuItem {\n    id\n    resourceId\n    tags\n    title\n    type\n    url\n  }\n  fragment ChildMenuItem on MenuItem {\n    ...MenuItem\n  }\n  fragment ParentMenuItem on MenuItem {\n    ...MenuItem\n    items {\n      ...ChildMenuItem\n    }\n  }\n  fragment Menu on Menu {\n    id\n    items {\n      ...ParentMenuItem\n    }\n  }\n': {
     return: LayoutQuery;

@@ -140,29 +140,30 @@ function lerp(a, b, t) {
   return a + (b - a) * t
 }
 
-/** 2 saniyede 2 geçiş: Latin → Katakana → Latin */
+/** Sürekli döngü: ~1 sn Latin, ~1 sn Katakana */
 function logoCrossfadeMix(seconds) {
-  if (seconds >= 2) return 0
-  const cross = (start, duration, forward = true) => {
-    const t = clamp((seconds - start) / duration, 0, 1)
-    const e = easeInOutSine(t)
-    return forward ? e : 1 - e
+  const cycle = 2
+  const fade = 0.35
+  const phase = seconds % cycle
+
+  if (phase < 1 - fade / 2) return 0
+  if (phase < 1 + fade / 2) {
+    const t = (phase - (1 - fade / 2)) / fade
+    return easeInOutSine(t)
   }
-  if (seconds < 0.28) return 0
-  if (seconds < 0.72) return cross(0.28, 0.44)
-  if (seconds < 1.08) return 1
-  if (seconds < 1.52) return cross(1.08, 0.44, false)
-  return 0
+  if (phase < 2 - fade / 2) return 1
+  const t = (phase - (2 - fade / 2)) / fade
+  return 1 - easeInOutSine(t)
 }
 
 function createSphere(canvas, options = {}) {
   const isMobile = window.innerWidth <= 768
-  const resolution = isMobile ? 72 : 108
+  const resolution = isMobile ? 48 : 96
   const baseScale = isMobile ? 2.58 : 4
 
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true })
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: !isMobile, alpha: true, powerPreference: 'high-performance' })
   renderer.setClearColor(0xffffff, 0)
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2))
   renderer.outputColorSpace = THREE.SRGBColorSpace
   renderer.toneMapping = THREE.ACESFilmicToneMapping
   renderer.toneMappingExposure = 1.15
@@ -301,18 +302,6 @@ function createSphere(canvas, options = {}) {
     pointer.targetStrength = 0
   }
 
-  function onTouchStart(e) {
-    if (!e.touches[0]) return
-    e.preventDefault()
-    updatePointerFromClient(e.touches[0].clientX, e.touches[0].clientY)
-  }
-
-  function onTouchMove(e) {
-    if (!e.touches[0]) return
-    e.preventDefault()
-    updatePointerFromClient(e.touches[0].clientX, e.touches[0].clientY)
-  }
-
   function onTouchEnd() {
     pointer.targetStrength = 0
   }
@@ -322,10 +311,7 @@ function createSphere(canvas, options = {}) {
   pointerEl.addEventListener('pointerleave', onPointerLeave)
   pointerEl.addEventListener('pointerup', onPointerUp)
   pointerEl.addEventListener('pointercancel', onPointerUp)
-  pointerEl.addEventListener('touchstart', onTouchStart, { passive: false })
-  pointerEl.addEventListener('touchmove', onTouchMove, { passive: false })
-  pointerEl.addEventListener('touchend', onTouchEnd)
-  pointerEl.addEventListener('touchcancel', onTouchEnd)
+  pointerEl.style.touchAction = 'none'
 
   function updateScene() {
     const delta = clock.getDelta()
@@ -437,10 +423,18 @@ function createSphere(canvas, options = {}) {
   }
 
   function tick() {
-    if (!running) return
+    if (!running || document.hidden) {
+      if (running) rafId = requestAnimationFrame(tick)
+      return
+    }
     updateScene()
     rafId = requestAnimationFrame(tick)
   }
+
+  const onVisibility = () => {
+    if (!document.hidden && running && !rafId) tick()
+  }
+  document.addEventListener('visibilitychange', onVisibility)
 
   tick()
 
@@ -456,10 +450,7 @@ function createSphere(canvas, options = {}) {
       pointerEl.removeEventListener('pointerleave', onPointerLeave)
       pointerEl.removeEventListener('pointerup', onPointerUp)
       pointerEl.removeEventListener('pointercancel', onPointerUp)
-      pointerEl.removeEventListener('touchstart', onTouchStart)
-      pointerEl.removeEventListener('touchmove', onTouchMove)
-      pointerEl.removeEventListener('touchend', onTouchEnd)
-      pointerEl.removeEventListener('touchcancel', onTouchEnd)
+      document.removeEventListener('visibilitychange', onVisibility)
       ro.disconnect()
       marching.geometry.dispose()
       material.dispose()

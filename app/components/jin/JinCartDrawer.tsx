@@ -2,6 +2,9 @@ import {useEffect, useState} from 'react';
 import {CartForm, Money, flattenConnection, type CartReturn} from '@shopify/hydrogen';
 import type {CartLine} from '@shopify/hydrogen/storefront-api-types';
 
+import {useLatestCart} from '~/hooks/useLatestCart';
+import {usePrefixPathWithLocale} from '~/lib/utils';
+
 type LocalItem = {
   id: string;
   name: string;
@@ -45,9 +48,9 @@ export function JinCartDrawer({
   onClose: () => void;
 }) {
   const [localItems, setLocalItems] = useState<LocalItem[]>([]);
-
-  const shopifyLines = cart?.lines ? flattenConnection(cart.lines) : [];
-  const useShopify = shopifyLines.length > 0;
+  const activeCart = useLatestCart(cart);
+  const shopifyLines = activeCart?.lines ? flattenConnection(activeCart.lines) : [];
+  const hasShopifyItems = (activeCart?.totalQuantity ?? 0) > 0 || shopifyLines.length > 0;
 
   useEffect(() => {
     setLocalItems(loadLocalCart());
@@ -75,13 +78,13 @@ export function JinCartDrawer({
   }, []);
 
   useEffect(() => {
-    if (useShopify) {
-      updateCartBadge(cart?.totalQuantity ?? 0);
+    if (hasShopifyItems) {
+      updateCartBadge(activeCart?.totalQuantity ?? 0);
       return;
     }
     const count = localItems.reduce((sum, item) => sum + item.qty, 0);
     updateCartBadge(count);
-  }, [useShopify, cart?.totalQuantity, localItems]);
+  }, [activeCart?.totalQuantity, hasShopifyItems, localItems]);
 
   function removeLocal(index: number) {
     setLocalItems((prev) => {
@@ -96,7 +99,7 @@ export function JinCartDrawer({
   return (
     <>
       <div className="cart-drawer__body" id="cartItems">
-        {useShopify ? (
+        {hasShopifyItems ? (
           shopifyLines.map((line) => (
             <JinShopifyLine key={line.id} line={line as CartLine} />
           ))
@@ -130,8 +133,8 @@ export function JinCartDrawer({
         <div className="cart-total">
           <span className="figuration">Total</span>
           <span className="heading-2" id="cartTotal">
-            {useShopify && cart?.cost?.totalAmount ? (
-              <Money data={cart.cost.totalAmount} />
+            {hasShopifyItems && activeCart?.cost?.totalAmount ? (
+              <Money data={activeCart.cost.totalAmount} />
             ) : localTotal > 0 ? (
               `£${localTotal}`
             ) : (
@@ -139,8 +142,8 @@ export function JinCartDrawer({
             )}
           </span>
         </div>
-        {useShopify && cart?.checkoutUrl ? (
-          <a href={cart.checkoutUrl} className="btn-primary" onClick={onClose}>
+        {hasShopifyItems && activeCart?.checkoutUrl ? (
+          <a href={activeCart.checkoutUrl} className="btn-primary" onClick={onClose}>
             Checkout
           </a>
         ) : (
@@ -154,6 +157,7 @@ export function JinCartDrawer({
 }
 
 function JinShopifyLine({line}: {line: CartLine}) {
+  const cartRoute = usePrefixPathWithLocale('/cart');
   const {id, quantity, merchandise} = line;
   if (!id || !quantity || !merchandise?.product) return null;
 
@@ -173,7 +177,7 @@ function JinShopifyLine({line}: {line: CartLine}) {
           {line.cost?.totalAmount ? <Money data={line.cost.totalAmount} /> : null} × {quantity}
         </p>
         <CartForm
-          route="/cart"
+          route={cartRoute}
           action={CartForm.ACTIONS.LinesRemove}
           inputs={{lineIds: [id]}}
         >

@@ -22,6 +22,10 @@ function setupInViewObserver() {
   return observer;
 }
 
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
 export function JinClientEffects() {
   const location = useLocation();
 
@@ -58,6 +62,8 @@ export function JinClientEffects() {
   }, [location.pathname]);
 
   useEffect(() => {
+    const scrollBehavior = prefersReducedMotion() || window.innerWidth <= 768 ? 'auto' : 'smooth';
+
     const onAnchorClick = (e: MouseEvent) => {
       const link = (e.target as HTMLElement).closest('a[href^="#"]');
       if (!link) return;
@@ -66,37 +72,10 @@ export function JinClientEffects() {
       const target = document.querySelector(id);
       if (!target) return;
       e.preventDefault();
-      target.scrollIntoView({behavior: 'smooth'});
-    };
-
-    const onAddToCartClick = (e: MouseEvent) => {
-      const btn = (e.target as HTMLElement).closest('.add-to-cart');
-      if (!btn || btn.closest('form')) return;
-      e.preventDefault();
-      const card = btn.closest('.product-card');
-      if (!card) return;
-
-        const id = card.getAttribute('data-product-id') || '';
-        const name = card.getAttribute('data-name') || '';
-        const price = Number(card.getAttribute('data-price') || 0);
-        const image = card.getAttribute('data-image') || '';
-        const imageMap: Record<string, string> = {
-          cleanser: '/images/product-cleanser-crop.png',
-          moi: '/images/product-moi-crop.png',
-          mist: '/images/product-mist-crop.png',
-          serum: '/images/product-serum-crop.png',
-        };
-
-        window.dispatchEvent(
-          new CustomEvent('jin:add-to-cart', {
-            detail: {id, name, price, qty: 1, image: image || imageMap[id] || ''},
-          }),
-        );
-      window.dispatchEvent(new Event('jin:open-cart'));
+      target.scrollIntoView({behavior: scrollBehavior});
     };
 
     document.addEventListener('click', onAnchorClick);
-    document.addEventListener('click', onAddToCartClick);
 
     const header = document.getElementById('header');
     const sections = [...document.querySelectorAll('main > section')];
@@ -120,12 +99,13 @@ export function JinClientEffects() {
 
     function computeTargetTone() {
       if (!header) return 0;
-      const y = window.scrollY + header.offsetHeight * 0.5;
+      const y = window.scrollY + header.getBoundingClientRect().height * 0.5;
 
       for (let i = 0; i < sections.length; i++) {
         const el = sections[i] as HTMLElement;
-        const top = el.offsetTop;
-        const bottom = top + el.offsetHeight;
+        const rect = el.getBoundingClientRect();
+        const top = rect.top + window.scrollY;
+        const bottom = top + rect.height;
         if (y < top || y > bottom) continue;
 
         const tone = sectionTone(el);
@@ -183,11 +163,14 @@ export function JinClientEffects() {
     const carouselNext = document.getElementById('carouselNext') as HTMLButtonElement | null;
     const carouselProgress = document.getElementById('carouselProgress');
     const cards = carouselTrack ? [...carouselTrack.querySelectorAll('.product-card')] : [];
+    const carouselGap = carouselTrack
+      ? parseFloat(getComputedStyle(carouselTrack).columnGap || getComputedStyle(carouselTrack).gap) || 24
+      : 24;
 
     function updateCarousel() {
-      if (!carouselTrack) return;
-      const cardWidth = (cards[0] as HTMLElement)?.offsetWidth || 1;
-      const index = Math.round(carouselTrack.scrollLeft / (cardWidth + 30));
+      if (!carouselTrack || !cards.length) return;
+      const cardWidth = (cards[0] as HTMLElement).offsetWidth || 1;
+      const index = Math.round(carouselTrack.scrollLeft / (cardWidth + carouselGap));
       if (carouselPrev) carouselPrev.disabled = index <= 0;
       if (carouselNext) carouselNext.disabled = index >= cards.length - 1;
       if (carouselProgress) {
@@ -195,14 +178,17 @@ export function JinClientEffects() {
       }
     }
 
-    carouselPrev?.addEventListener('click', () => {
+    const onCarouselPrev = () => {
       const cardWidth = (cards[0] as HTMLElement)?.offsetWidth || 480;
-      carouselTrack?.scrollBy({left: -(cardWidth + 30), behavior: 'smooth'});
-    });
-    carouselNext?.addEventListener('click', () => {
+      carouselTrack?.scrollBy({left: -(cardWidth + carouselGap), behavior: scrollBehavior});
+    };
+    const onCarouselNext = () => {
       const cardWidth = (cards[0] as HTMLElement)?.offsetWidth || 480;
-      carouselTrack?.scrollBy({left: cardWidth + 30, behavior: 'smooth'});
-    });
+      carouselTrack?.scrollBy({left: cardWidth + carouselGap, behavior: scrollBehavior});
+    };
+
+    carouselPrev?.addEventListener('click', onCarouselPrev);
+    carouselNext?.addEventListener('click', onCarouselNext);
     carouselTrack?.addEventListener('scroll', updateCarousel, {passive: true});
     updateCarousel();
 
@@ -213,51 +199,69 @@ export function JinClientEffects() {
       testimonials.forEach((t, i) => t.classList.toggle('active', i === index));
     }
 
-    document.getElementById('testPrev')?.addEventListener('click', () => {
+    const onTestPrev = () => {
       testIndex = (testIndex - 1 + testimonials.length) % testimonials.length;
       showTestimonial(testIndex);
-    });
-    document.getElementById('testNext')?.addEventListener('click', () => {
+    };
+    const onTestNext = () => {
       testIndex = (testIndex + 1) % testimonials.length;
       showTestimonial(testIndex);
-    });
+    };
 
-    const testimonialTimer = window.setInterval(() => {
-      testIndex = (testIndex + 1) % testimonials.length;
-      showTestimonial(testIndex);
-    }, 6000);
+    document.getElementById('testPrev')?.addEventListener('click', onTestPrev);
+    document.getElementById('testNext')?.addEventListener('click', onTestNext);
+
+    const testimonialTimer =
+      testimonials.length > 1
+        ? window.setInterval(() => {
+            testIndex = (testIndex + 1) % testimonials.length;
+            showTestimonial(testIndex);
+          }, 6000)
+        : 0;
 
     const cookieBanner = document.getElementById('cookieBanner');
     const cookieTimer = window.setTimeout(() => cookieBanner?.classList.add('is-visible'), 3000);
 
-    document.getElementById('cookieAccept')?.addEventListener('click', () => {
+    const onCookieAccept = () => {
       cookieBanner?.classList.remove('is-visible');
       localStorage.setItem('jin-cookies', 'accepted');
-    });
-    document.getElementById('cookieDecline')?.addEventListener('click', () => {
+    };
+    const onCookieDecline = () => {
       cookieBanner?.classList.remove('is-visible');
-    });
-    if (localStorage.getItem('jin-cookies')) cookieBanner?.classList.remove('is-visible');
-
-    document.getElementById('newsletterForm')?.addEventListener('submit', (e) => {
+    };
+    const onNewsletterSubmit = (e: Event) => {
       e.preventDefault();
       const btn = (e.target as HTMLFormElement).querySelector('.link-cta') as HTMLElement | null;
       if (btn) {
         btn.textContent = 'Thank you';
         btn.style.pointerEvents = 'none';
       }
-    });
+    };
+
+    document.getElementById('cookieAccept')?.addEventListener('click', onCookieAccept);
+    document.getElementById('cookieDecline')?.addEventListener('click', onCookieDecline);
+    if (localStorage.getItem('jin-cookies')) cookieBanner?.classList.remove('is-visible');
+
+    const newsletterForm = document.getElementById('newsletterForm');
+    newsletterForm?.addEventListener('submit', onNewsletterSubmit);
 
     return () => {
       document.removeEventListener('click', onAnchorClick);
-      document.removeEventListener('click', onAddToCartClick);
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', schedule);
-      window.clearInterval(testimonialTimer);
+      carouselPrev?.removeEventListener('click', onCarouselPrev);
+      carouselNext?.removeEventListener('click', onCarouselNext);
+      carouselTrack?.removeEventListener('scroll', updateCarousel);
+      document.getElementById('testPrev')?.removeEventListener('click', onTestPrev);
+      document.getElementById('testNext')?.removeEventListener('click', onTestNext);
+      document.getElementById('cookieAccept')?.removeEventListener('click', onCookieAccept);
+      document.getElementById('cookieDecline')?.removeEventListener('click', onCookieDecline);
+      newsletterForm?.removeEventListener('submit', onNewsletterSubmit);
+      if (testimonialTimer) window.clearInterval(testimonialTimer);
       window.clearTimeout(cookieTimer);
       if (rafId) cancelAnimationFrame(rafId);
     };
-  }, []);
+  }, [location.pathname]);
 
   return null;
 }

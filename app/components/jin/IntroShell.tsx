@@ -1,5 +1,7 @@
 import {useEffect, useRef} from 'react';
 
+import {markIntroSeen, shouldSkipIntro} from '~/lib/jin-intro';
+
 type Props = {
   onComplete?: () => void;
 };
@@ -9,21 +11,9 @@ export function IntroShell({onComplete}: Props) {
   const completed = useRef(false);
 
   useEffect(() => {
-    const scrollY = window.scrollY;
     document.documentElement.classList.add('intro-active');
-
-    const blockScroll = (event: Event) => {
-      event.preventDefault();
-    };
-
-    document.addEventListener('touchmove', blockScroll, {passive: false});
-    document.addEventListener('wheel', blockScroll, {passive: false});
-
     return () => {
       document.documentElement.classList.remove('intro-active');
-      document.removeEventListener('touchmove', blockScroll);
-      document.removeEventListener('wheel', blockScroll);
-      window.scrollTo(0, scrollY);
     };
   }, []);
 
@@ -41,10 +31,16 @@ export function IntroShell({onComplete}: Props) {
     const finish = () => {
       if (completed.current) return;
       completed.current = true;
+      markIntroSeen();
       intro.classList.add('is-hidden');
       document.documentElement.classList.remove('intro-active');
       onComplete?.();
     };
+
+    if (shouldSkipIntro()) {
+      finish();
+      return;
+    }
 
     import('~/lib/intro-sphere.client.js').then(({initIntroSphere}) => {
       stop = initIntroSphere({
@@ -62,7 +58,7 @@ export function IntroShell({onComplete}: Props) {
           stop();
           finish();
         }
-      }, 12000);
+      }, 10000);
     });
 
     return () => {
@@ -82,13 +78,15 @@ export function IntroShell({onComplete}: Props) {
             className="intro__logo-mark intro__logo-mark--latin"
             width={77}
             height={52}
+            decoding="async"
           />
           <img
-            src="/images/logo-jin-katakana.png"
-            alt="ジン"
+            src="/images/logo-jin-katakana-mark.png"
+            alt=""
             className="intro__logo-mark intro__logo-mark--katakana"
             width={77}
             height={40}
+            decoding="async"
           />
         </div>
         <div className="intro__glow" id="introGlow" aria-hidden="true" />

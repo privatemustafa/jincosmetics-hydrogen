@@ -11,7 +11,7 @@ export function JinHomePage({products}: Props) {
   const moi = findJinProduct(products, 'moi-day-creme');
   return (
     <>
-      <section className="hero watch-in-view" id="hero">
+      <section className="hero" id="hero">
         <div className="hero__stage" aria-hidden="true">
           <div className="hero__pan">
             <img
@@ -20,6 +20,9 @@ export function JinHomePage({products}: Props) {
               className="hero__img"
               width={1024}
               height={576}
+              fetchPriority="high"
+              loading="eager"
+              decoding="async"
             />
           </div>
         </div>
@@ -127,11 +130,12 @@ export function JinHomePage({products}: Props) {
 
           <div className="carousel" id="productCarousel">
             <div className="carousel__track" id="carouselTrack">
-              {products.map((product) => (
+              {products.map((product, index) => (
                 <JinProductCard
                   key={product.handle}
                   product={product}
                   layout="carousel"
+                  priority={index === 0}
                 />
               ))}
             </div>
